@@ -5,7 +5,6 @@ import warnings
 from statsmodels.stats.diagnostic import acorr_ljungbox
 from statsmodels.stats.stattools import durbin_watson
 from statsmodels.tsa.stattools import adfuller
-
 warnings.filterwarnings("ignore")  # 忽略警告
 
 # 高价值用户的标准：用电量大于平均用电量
@@ -43,6 +42,7 @@ for i in data2.index:
         stable.append(i)
     else:
         unstable.append(i)
+
 for i in stable:
     data0 = data.loc[data['user_id'] == i]
     # 去除user_id列

@@ -100,6 +100,7 @@ class KMeans:
 # 聚类模型
 from sklearn.cluster import KMeans
 
+
 class user_culster():
 
     def __init__(self, data):
@@ -107,6 +108,7 @@ class user_culster():
         self.means = []
         self.data = data
 
+    # 测试出应该有几个聚类点
     def elbow_method(self, n_clusters):
         fig, ax = plt.subplots(figsize=(16, 9))
         distortions = []
@@ -145,7 +147,7 @@ class user_culster():
             for x, y in zip(self.data, self.predictions):
                 if y == i:
                     all_data.append(x)
-                    plt.subplot(2,1,i+1)
+                    plt.subplot(2, 1, i + 1)
                     plt.plot(x, alpha=0.06, color="blue", lw=2)
                     plt.xlim(0, 96)
                     plt.title('Cluster%s' % (i + 1))
@@ -166,13 +168,15 @@ class user_culster():
             plt.plot(item, label="cluster %s" % (str(i + 1)))
             plt.xlim(0, 96)
         plt.ylabel('用电量/kW')
-        plt.xticks([0, 20, 40, 60, 80, 100, 120,140],
+        plt.xticks([0, 20, 40, 60, 80, 100, 120, 140],
                    ['2015-1-1', '2015-3-31', '2015-6-30', '2015-9-30', '2015-12-31', '2016-3-31', '2016-6-30',
                     '2016-8-31'], rotation=60)
         plt.grid()
         plt.legend()
         plt.show()
-joblib.dump(user_culster,'user_culster.pkl')
+
+
+joblib.dump(user_culster, 'user_culster.pkl')
 
 # 显示中文
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -180,7 +184,7 @@ plt.rcParams['axes.unicode_minus'] = False
 # 聚类簇设计
 data0 = np.array(df0, dtype=int)
 # 导入数据，生成计算模型
-user_culster=joblib.load(filename='user_culster.pkl')
+user_culster = joblib.load(filename='user_culster.pkl')
 energy_clusters = user_culster(data0)
 # 计算聚类簇的距离
 energy_clusters.elbow_method(n_clusters=13)
