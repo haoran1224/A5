@@ -73,7 +73,7 @@ def get_data():
     # series = read_csv('daily-min-temperatures.csv', header=0, index_col=0, parse_dates=True, squeeze=True)
     # 读取gen这一列数据
     from pandas import read_csv
-    data = read_csv('../data/temp3.csv', usecols=['gen'])
+    data = read_csv('data/Australia.csv', usecols=['电力负荷'])
     # 归一化
     global scaler
     amplitude = scaler.fit_transform(data.to_numpy().reshape(-1, 1)).reshape(-1)
@@ -94,8 +94,8 @@ def get_data():
     test_data = test_data[:-output_window]  # todo: fix hack?
 
     # 读取特征数据 用于拼接
-    feature = read_csv('../data/temp3.csv',
-                       usecols=['temperature', 'apparentTemperature', 'dewPoint', 'month', 'hour', 'is_holiday'])
+    feature = read_csv('data/Australia.csv',
+                       usecols=['month', 'day', '小时', '干球温度', '露点温度', '湿球温度', '湿度', '电价'])
     feature = chuli(feature)
     feature = np.array(feature)
 
@@ -123,7 +123,7 @@ def get_batch(source, i, batch_size):
 
 
 # 此时返回的特征是可以直接与位置编码后512维的电力数据相加的
-# 此时feature的维度为 100,10,2
+# 此时feature的维度为 100,10,8
 def get_batch_tezhen(feature, i, batch_size):
     seq_len = min(batch_size, len(feature) - 1 - i)
     data = feature[i:i + seq_len]
@@ -150,6 +150,7 @@ class PositionalEncoding(nn.Module):
         # print(x.size())
         # print(fe.size())
         return x + self.pe[:x.size(0), :] + fe
+        # return x + self.pe[:x.size(0), :]
 
 
 class TransAm(nn.Module):
@@ -157,7 +158,7 @@ class TransAm(nn.Module):
         super(TransAm, self).__init__()
         self.model_type = 'Transformer'
 
-        self.embedding = nn.Linear(6, feature_size)
+        self.embedding = nn.Linear(8, feature_size)
         self.src_mask = None
         self.pos_encoder = PositionalEncoding(feature_size)
         self.encoder_layer = nn.TransformerEncoderLayer(d_model=feature_size, nhead=8, dropout=dropout)
@@ -249,16 +250,18 @@ def plot_and_loss(eval_model, data_source, data_feature, epoch):
     # test_result = test_result.cpu().numpy()
     len(test_result)
     # 预测结果
-    pyplot.plot(scaler.inverse_transform(test_result[:1000].reshape(-1, 1)), color="red")
+    pyplot.plot(scaler.inverse_transform(test_result[:50].reshape(-1, 1)), color="red")
     # 实际结果
-    pyplot.plot(scaler.inverse_transform(truth[:500].reshape(-1, 1)), color="blue")
+    pyplot.plot(scaler.inverse_transform(truth[:50].reshape(-1, 1)), color="blue")
     # 差值
     # pyplot.plot(test_result - truth, color="green")
     pyplot.grid(True, which='both')
     pyplot.axhline(y=0, color='k')
-    pyplot.savefig('../image/transformer-epoch%d.png' % epoch)
+    # pyplot.savefig('../image/australia_tezhen/transformer-epoch%d.png' % epoch)
     pyplot.close()
-
+    if epoch == 100:
+        global total_num
+        total_num.append(scaler.inverse_transform(test_result[:50].reshape(-1, 1)).ravel().tolist())
     return total_loss / i
 
 
@@ -282,7 +285,7 @@ def predict_future(eval_model, data_source, steps):
     pyplot.plot(data[:input_window], color="blue")
     pyplot.grid(True, which='both')
     pyplot.axhline(y=0, color='k')
-    pyplot.savefig('../image/transformer-future%d.png' % steps)
+    # pyplot.savefig('../image/transformer-future%d.png' % steps)
     pyplot.close()
 
 
@@ -315,12 +318,15 @@ optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1.0, gamma=0.98)
 
 best_val_loss = float("inf")
-epochs = 150
+epochs = 100
 # The number of epochs
 best_model = None
+best_loss = 1000
 
 train_loss = []
 test_loss = []
+
+total_num = []
 
 if __name__ == "__main__":
     while True:
@@ -349,12 +355,18 @@ if __name__ == "__main__":
             scheduler.step()
 
         print('******************')
+        # 输出train_loss 与 test_loss 的训练结果
         pyplot.plot(train_loss, color="red")
         # 实际结果
         pyplot.plot(test_loss, color="blue")
         pyplot.grid(True, which='both')
         pyplot.axhline(y=0, color='k')
         pyplot.show()
+        # 写入训练的结果
+        df_data = pd.DataFrame(total_num)
+        df_data.to_excel('temp.xlsx')
+        # 保存模型
+        torch.save(model.state_dict(), '../save/TRANSFORMER_model_Duo.pt')
         break
 
 

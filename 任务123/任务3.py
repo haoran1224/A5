@@ -104,6 +104,7 @@ for i in unstable:
 
 ####################################### 预测值的处理 #######################################
 # 按照预测平均用电量降序排序
+
 power = sorted(power_dict.items(), key=lambda x: x[1], reverse=True)
 with open("居民客户的用电缴费习惯分析3.csv", mode='w', encoding='gbk', newline='') as f:
     csvwriter = csv.writer(f)
