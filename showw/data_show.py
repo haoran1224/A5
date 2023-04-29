@@ -8,12 +8,12 @@ import streamlit as st
 
 def main():
     # st.set_page_config(layout="wide")  # 设置屏幕展开方式，宽屏模式布局更好
-    st.sidebar.write('文档管理导航栏')
-
-    add_selectbox = st.sidebar.radio(
-        "文档管理",
-        ("上传文档", "下载文档", "文档查询")
-    )
+    # st.sidebar.write('文档管理导航栏')
+    #
+    # add_selectbox = st.sidebar.radio(
+    #     "文档管理",
+    #     ("上传文档", "下载文档", "文档查询")
+    # )
 
     st.write("操作说明")
 

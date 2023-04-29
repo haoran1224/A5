@@ -1,16 +1,13 @@
 import math
 import time
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 import torch
 from matplotlib import pyplot
 from scipy import stats
 import torch.nn as nn
 from sklearn.preprocessing import MinMaxScaler
-
 import warnings
 import os
 
@@ -21,11 +18,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 input_window = 100
 output_window = 5
 batch_size = 10  # batch size
-
 calculate_loss_over_all_values = False
-
-
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def chuli(train_data):
@@ -66,14 +59,8 @@ def creat_inout_sq(input_data, tw):
 
 
 def get_data():
-    # time = np.arange(0, 400, 0.1)
-    # amplitude = np.sin(time) + np.sin(time * 0.05) + np.sin(time * 0.12) * np.random.normal(-0.2, 0.2, len(time))
-    #
-    # from pandas import read_csv
-    # series = read_csv('daily-min-temperatures.csv', header=0, index_col=0, parse_dates=True, squeeze=True)
-    # 读取gen这一列数据
     from pandas import read_csv
-    data = read_csv('data/Australia.csv', usecols=['电力负荷'])
+    data = read_csv('D:\pyhtonProject\A5\任务4\data\Australia.csv', usecols=['电力负荷'])
     # 归一化
     global scaler
     amplitude = scaler.fit_transform(data.to_numpy().reshape(-1, 1)).reshape(-1)
@@ -94,7 +81,7 @@ def get_data():
     test_data = test_data[:-output_window]  # todo: fix hack?
 
     # 读取特征数据 用于拼接
-    feature = read_csv('data/Australia.csv',
+    feature = read_csv('D:\pyhtonProject\A5\任务4\data\Australia.csv',
                        usecols=['month', 'day', '小时', '干球温度', '露点温度', '湿球温度', '湿度', '电价'])
     feature = chuli(feature)
     feature = np.array(feature)
@@ -114,10 +101,8 @@ def get_data():
 def get_batch(source, i, batch_size):
     seq_len = min(batch_size, len(source) - 1 - i)
     data = source[i:i + seq_len]
-    # print(torch.stack([item[0] for item in data]).shape)
-    # print(torch.stack([item[0] for item in data]).chunk(input_window, 1))
     # 1 按列切分
-    input = torch.stack(torch.stack([item[0] for item in data]).chunk(input_window, 1))  # 1 is feature size
+    input = torch.stack(torch.stack([item[0] for item in data]).chunk(input_window, 1))
     target = torch.stack(torch.stack([item[1] for item in data]).chunk(input_window, 1))
     return input, target
 
@@ -147,17 +132,14 @@ class PositionalEncoding(nn.Module):
         self.register_buffer('pe', pe)
 
     def forward(self, x, fe):
-        # print(x.size())
-        # print(fe.size())
-        return x + self.pe[:x.size(0), :] + fe
-        # return x + self.pe[:x.size(0), :]
+        # return x + self.pe[:x.size(0), :] + fe
+        return x + self.pe[:x.size(0), :]
 
 
 class TransAm(nn.Module):
     def __init__(self, feature_size=16, num_layers=2, dropout=0.1):
         super(TransAm, self).__init__()
         self.model_type = 'Transformer'
-
         self.embedding = nn.Linear(8, feature_size)
         self.src_mask = None
         self.pos_encoder = PositionalEncoding(feature_size)
@@ -179,7 +161,7 @@ class TransAm(nn.Module):
 
         fe = self.embedding(fe)
         src = self.pos_encoder(src, fe)
-        output = self.transformer_encoder(src, self.src_mask)  # , self.src_mask)
+        output = self.transformer_encoder(src, self.src_mask)
         output = self.decoder(output)
         return output
 
@@ -320,12 +302,12 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1.0, gamma=0.98)
 best_val_loss = float("inf")
 epochs = 100
 # The number of epochs
-best_model = None
-best_loss = 1000
-
+# best_model = None
+# best_loss = 1000
+# 用于显示训练过程中的训练集和测试集误差
 train_loss = []
 test_loss = []
-
+# 用于取出部分数据来进行图形展示
 total_num = []
 
 if __name__ == "__main__":

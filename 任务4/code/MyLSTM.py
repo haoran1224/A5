@@ -10,9 +10,11 @@ from torch import nn
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.data import DataLoader, Dataset
 import os
+import sys
 from sklearn.preprocessing import MinMaxScaler
+sys.path.append("D:\pyhtonProject\A5\任务4")
+import Data_manager
 
-from 任务4.Data_manager import get_batch, get_data
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -55,7 +57,7 @@ def train(train_data, train_data_fe):
 
     for batch, i in enumerate(range(0, len(train_data) - 1 - 5, batch_size)):
         # 获取电力数据和相关的特征
-        data, targets = get_batch(train_data, i, batch_size)
+        data, targets = Data_manager.get_batch(train_data, i, batch_size)
         # fe = get_batch_tezhen(train_data_fe, i, batch_size)
         # data = torch.cat((fe, data), dim=2)
 
@@ -98,7 +100,7 @@ def plot_and_loss(eval_model, data_source, data_feature, epoch):
     with torch.no_grad():
         for i in range(0, len(data_source) - 1 - 5):
             # 获取数据
-            data, target = get_batch(data_source, i, 1)
+            data, target = Data_manager.get_batch(data_source, i, 1)
             # fe = get_batch_tezhen(data_feature, i, 1)
             # # 拼接数据
             # data = torch.cat((fe, data), dim=2)
@@ -109,25 +111,24 @@ def plot_and_loss(eval_model, data_source, data_feature, epoch):
             else:
                 total_loss += criterion(output[-output_window:], target[-output_window:]).item()
 
-            test_result = torch.cat((test_result, output[-1].view(-1).cpu()),
-                                    0)  # todo: check this. -> looks good to me
+            test_result = torch.cat((test_result, output[-1].view(-1).cpu()), 0)
             truth = torch.cat((truth, target[-1].view(-1).cpu()), 0)
 
     # test_result = test_result.cpu().numpy()
     len(test_result)
     # 预测结果
-    pyplot.plot(scaler.inverse_transform(test_result[:50].reshape(-1, 1)), color="red")
+    pyplot.plot(test_result[:100], color="red")
     # 实际结果
-    pyplot.plot(scaler.inverse_transform(truth[:50].reshape(-1, 1)), color="blue")
+    pyplot.plot(truth[:100], color="blue")
     # 差值
     # pyplot.plot(test_result - truth, color="green")
     pyplot.grid(True, which='both')
     pyplot.axhline(y=0, color='k')
-    # pyplot.savefig('../image2/australia_tezhen/transformer-epoch%d.png' % epoch)
+    pyplot.savefig('../image2/australia_tezhen/transformer-epoch%d.png' % epoch)
     pyplot.close()
-    if epoch == 10:
-        global total_num
-        total_num.append(scaler.inverse_transform(test_result[:50].reshape(-1, 1)).ravel().tolist())
+    # if epoch == 10:
+    #     global total_num
+    #     total_num.append(scaler.inverse_transform(test_result[:50].reshape(-1, 1)).ravel().tolist())
     return total_loss / i
 
 
@@ -139,7 +140,7 @@ def evaluate(eval_model, data_source, data_feature):
     print(len(data_source))
     with torch.no_grad():
         for i in range(0, len(data_source) - 1 - 95, eval_batch_size):
-            data, targets = get_batch(data_source, i, eval_batch_size)
+            data, targets = Data_manager.get_batch(data_source, i, eval_batch_size)
             # fe = get_batch_tezhen(data_feature, i, eval_batch_size)
             # data = torch.cat((fe, data), dim=2)
 
@@ -152,7 +153,7 @@ def evaluate(eval_model, data_source, data_feature):
 
 
 scaler = MinMaxScaler(feature_range=(-1, 1))
-train_data, val_data, train_data_fe, val_data_fe = get_data()
+train_data, val_data, train_data_fe, val_data_fe = Data_manager.get_data()
 # 输入数据的维度，节点数，多少层，输出维度
 model = LSTM(1, 64, 2, 1).to(device)
 
@@ -192,8 +193,8 @@ if __name__ == "__main__":
                 train_loss.append(val_loss_train)
                 test_loss.append(val_loss_test)
 
-        df_data = pd.DataFrame(total_num)
-        df_data.to_excel('temp1.xlsx')
+        # df_data = pd.DataFrame(total_num)
+        # df_data.to_excel('temp1.xlsx')
         # 保存模型
         torch.save(model.state_dict(), '../save/LSTM_model.pt')
         pyplot.plot(train_loss, color="red")

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from pandas import read_csv
 import joblib
 
-data = read_csv("2015.01.01—2016.08.31中国江苏省扬中市1000多家企业每日用电量数据.csv")
+data = read_csv("D:\pyhtonProject\A5\electricity_classification\\2015.01.01—2016.08.31中国江苏省扬中市1000多家企业每日用电量数据.csv")
 df = pd.DataFrame(data, columns=['user_id', 'record_date', 'power_consumption'])
 print(df.head())
 

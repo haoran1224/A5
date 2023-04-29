@@ -4,6 +4,9 @@ import streamlit_authenticator as stauth
 # 如下代码数据，可以来自数据库
 from data_show import main
 
+st.set_page_config(layout="wide")  # 设置屏幕展开方式，宽屏模式布局更好
+
+
 names = ['肖永威', '管理员']
 usernames = ['xiaoyw', 'admin']
 passwords = ['S0451', 'ad4516']

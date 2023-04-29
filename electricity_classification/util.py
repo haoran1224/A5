@@ -101,38 +101,80 @@ def elbow_method_new(temp_data, n_clusters):
     plt.show()
 
 
+def plot_three(data, prediction):
+    # self.cluster_names = [str(x) for x in range(self.n_clusters)]
+    fig, ax = plt.subplots(figsize=(16, 9))
+    for i in range(0, 3):
+        all_data = []
+        for x, y in zip(data, prediction):
+            if y == i:
+                x.reshape(-1, 1, 1)
+                print(x.shape)
+                all_data.append(x)
+                plt.subplot(3, 1, i + 1)
+                plt.plot(x, alpha=0.06, color="blue", lw=2)
+                plt.xlim(0, 96)
+                plt.title('Cluster%s' % (i + 1))
+                plt.ylabel('用电量/kW')
+
+        all_data_array = np.array(all_data)
+        mean = all_data_array.mean(axis=0)
+        plt.plot(mean, color="black", linewidth=4)
+    plt.savefig('./111111111.png')
+    plt.show()
+
+def plot(data, prediction):
+    fig, axes = plt.subplots(3,1, figsize=(16, 9))
+
+    for i in range(0, 3):
+        all_data = []
+        for x, y in zip(data, prediction):
+            if y == i:
+                all_data.append(x)
+                axes[i].plot(x, alpha=0.06, color="blue", lw=2)
+                # axes.xlim(0, 96)
+                axes[i].set_title('Cluster%s' % (i + 1))
+                axes[i].set_ylabel('用电量/kW')
+
+        all_data_array = np.array(all_data)
+        mean = all_data_array.mean(axis=0)
+        axes[i].plot(mean, color="black", linewidth=4)
+    plt.savefig('./111111111.png')
+    plt.show()
+
+
 class user_KShape():
     # 模型训练
     def fit(self, n_clusters, temp_data):
         self.n_clusters = n_clusters
-        self.kmeans = TimeSeriesKMeans(self.n_clusters)
+        self.kmeans = TimeSeriesKMeans(self.n_clusters, metric="dtw")
         self.predictions = self.kmeans.fit_predict(temp_data)
         # 保存模型
-        self.kmeans.to_json('../try.json')
+        # self.kmeans.to_json('../oory.json')
 
 
 # 显示中文
 plt.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus'] = False
 
-data = get_data()
-
-data = np.array(data)
-# 数据进行降维，在保持原有形状的基础上，进行数据的缩小
-data_jiangwei = jiangwei(data)
+# data = get_data()
+#
+# data = np.array(data)
+# # 数据进行降维，在保持原有形状的基础上，进行数据的缩小
+# data_jiangwei = jiangwei(data)
 # 使用dtw计算各个曲线之间的距离，用于提升精度
 # temp_data = metrics.cdist_dtw(data_jiangwei)
 
 # elbow_method_new(data_jiangwei, 13)
 
-user_culster = user_KShape()
-user_culster.fit(3,data)
+# user_culster = user_KShape()
+# user_culster.fit(3, data_jiangwei)
 
-my_kemans = TimeSeriesKMeans().from_json('try.json')
-pre = my_kemans.predict(data)
-print(type(pre))
-for i in pre:
-    if i == 1:
-        print('*********************')
-    if i == 2:
-        print('#########################')
+# my_kemans = TimeSeriesKMeans().from_json('oory.json')
+# pre = my_kemans.predict(data)
+# plot(data, pre)
+# for i in pre:
+#     if i == 1:
+#         print('*********************')
+#     if i == 2:
+#         print('#########################')
