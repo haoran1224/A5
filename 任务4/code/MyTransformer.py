@@ -64,7 +64,6 @@ def get_data():
     # 归一化
     global scaler
     amplitude = scaler.fit_transform(data.to_numpy().reshape(-1, 1)).reshape(-1)
-    # amplitude = scaler.fit_transform(amplitude.reshape(-1, 1)).reshape(-1)
     # 划分训练测试集
     sampels = 2800
     train_data = amplitude[:sampels]
@@ -72,13 +71,12 @@ def get_data():
 
     # convert our train data into a pytorch train tensor
     # train_tensor = torch.FloatTensor(train_data).view(-1)
-    # todo: add comment..
     train_sequence = create_inout_sequences(train_data, input_window)
-    train_sequence = train_sequence[:-output_window]  # todo: fix hack?
+    train_sequence = train_sequence[:-output_window]
 
     # test_data = torch.FloatTensor(test_data).view(-1)
     test_data = create_inout_sequences(test_data, input_window)
-    test_data = test_data[:-output_window]  # todo: fix hack?
+    test_data = test_data[:-output_window]
 
     # 读取特征数据 用于拼接
     feature = read_csv('D:\pyhtonProject\A5\任务4\data\Australia.csv',
@@ -132,8 +130,8 @@ class PositionalEncoding(nn.Module):
         self.register_buffer('pe', pe)
 
     def forward(self, x, fe):
-        # return x + self.pe[:x.size(0), :] + fe
-        return x + self.pe[:x.size(0), :]
+        return x + self.pe[:x.size(0), :] + fe
+        # return x + self.pe[:x.size(0), :]
 
 
 class TransAm(nn.Module):
@@ -225,25 +223,25 @@ def plot_and_loss(eval_model, data_source, data_feature, epoch):
             else:
                 total_loss += criterion(output[-output_window:], target[-output_window:]).item()
 
-            test_result = torch.cat((test_result, output[-1].view(-1).cpu()),
-                                    0)  # todo: check this. -> looks good to me
+            test_result = torch.cat((test_result, output[-1].view(-1).cpu()), 0)
             truth = torch.cat((truth, target[-1].view(-1).cpu()), 0)
 
     # test_result = test_result.cpu().numpy()
     len(test_result)
     # 预测结果
-    pyplot.plot(scaler.inverse_transform(test_result[:50].reshape(-1, 1)), color="red")
+    pyplot.plot(scaler.inverse_transform(test_result[:50].reshape(-1, 1)), color="red", marker='^')
     # 实际结果
-    pyplot.plot(scaler.inverse_transform(truth[:50].reshape(-1, 1)), color="blue")
+    pyplot.plot(scaler.inverse_transform(truth[:50].reshape(-1, 1)), color="blue", marker='^')
     # 差值
     # pyplot.plot(test_result - truth, color="green")
     pyplot.grid(True, which='both')
     pyplot.axhline(y=0, color='k')
-    # pyplot.savefig('../image/australia_tezhen/transformer-epoch%d.png' % epoch)
+    pyplot.savefig('../Final_Image/Transformer_duo/transformer-epoch%d.png' % epoch)
     pyplot.close()
     if epoch == 100:
+        print(len(test_result))
         global total_num
-        total_num.append(scaler.inverse_transform(test_result[:50].reshape(-1, 1)).ravel().tolist())
+        total_num.append(scaler.inverse_transform(test_result[:100].reshape(-1, 1)).ravel().tolist())
     return total_loss / i
 
 
@@ -302,8 +300,8 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1.0, gamma=0.98)
 best_val_loss = float("inf")
 epochs = 100
 # The number of epochs
-# best_model = None
-# best_loss = 1000
+best_model = None
+best_loss = 1000
 # 用于显示训练过程中的训练集和测试集误差
 train_loss = []
 test_loss = []
@@ -320,6 +318,8 @@ if __name__ == "__main__":
             if epoch % 10 == 0:
                 val_loss = plot_and_loss(model, val_data, val_data_fe, epoch)
                 # predict_future(model, val_data, 200)
+                if val_loss < best_loss:
+                    best_model = model
             else:
                 val_loss = evaluate(model, val_data, val_data_fe)
                 train_data_loss = evaluate(model, train_data, train_data_fe)
@@ -341,14 +341,14 @@ if __name__ == "__main__":
         pyplot.plot(train_loss, color="red")
         # 实际结果
         pyplot.plot(test_loss, color="blue")
-        pyplot.grid(True, which='both')
-        pyplot.axhline(y=0, color='k')
+        # pyplot.grid(True, which='both')
+        # pyplot.axhline(y=0, color='k')
         pyplot.show()
         # 写入训练的结果
         df_data = pd.DataFrame(total_num)
-        df_data.to_excel('temp.xlsx')
+        df_data.to_excel('../Final_Image/datayuce/transformer2.xlsx')
         # 保存模型
-        torch.save(model.state_dict(), '../save/TRANSFORMER_model_Duo.pt')
+        # torch.save(model.state_dict(), '../save/Temp/TRANSFORMER_model_2.pt')
         break
 
 

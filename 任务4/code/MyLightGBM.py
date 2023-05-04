@@ -1,7 +1,7 @@
 import pandas as pd
 from numpy import asarray
 from pandas import DataFrame
-from sklearn.metrics import mean_absolute_error,mean_squared_error
+from sklearn.metrics import mean_absolute_error,mean_squared_error,mean_absolute_percentage_error
 from matplotlib import pyplot
 from pandas import concat
 from xgboost import XGBRegressor
@@ -68,25 +68,24 @@ def walk_forward_validation(data, n_test):
         # summarize progress
         print('>expected=%.1f, predicted=%.1f' % (testy, yhat))
     # estimate prediction error
-    error = mean_squared_error(test[:, -1], predictions)
-    return error, test[:, -1], predictions
+    error = mean_absolute_error(test[:, -1], predictions)
+    error2 = mean_squared_error(test[:, -1], predictions)
+    error3 = mean_absolute_percentage_error(test[:, -1], predictions)
+    return error, error2, error3, test[:, -1], predictions
 
 
 if __name__ == "__main__":
     while True:
         data = pd.read_csv('../data/Australia.csv', usecols=['电力负荷'])
         data = data[0:3000]
-
-        # 归一化
-        from sklearn.preprocessing import MinMaxScaler
-        scaler = MinMaxScaler(feature_range=(-1, 1))
-        amplitude = scaler.fit_transform(data.to_numpy().reshape(-1, 1)).reshape(-1)
-        data = pd.DataFrame(amplitude)
-
+        print(data.describe())
         data = series_to_supervised(data, n_in=6)
+        print(data.shape)
         # evaluate
-        mae, y, yhat = walk_forward_validation(data, 12)
-        print('MSE: %.3f' % mae)
+        mae, MSE, MAPE, y, yhat = walk_forward_validation(data, 100)
+        print('MAE: %.3f' % mae)
+        print('MSE: %.6f' % MSE)
+        print('MAPE: %.6f' % MAPE)
         # plot expected vs preducted
         pyplot.plot(y, label='Expected')
         pyplot.plot(yhat, label='Predicted')

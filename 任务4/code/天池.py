@@ -7,6 +7,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import os
+from sklearn.metrics import mean_absolute_error,mean_squared_error,mean_absolute_percentage_error
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
@@ -174,14 +175,24 @@ if __name__ == "__main__":
         #
         # sorce, target = get_batch(need_data, 0, 1)
         # print(torch.as_tensor(sorce).shape)
-        data = pd.read_excel('temp.xlsx')
-        plt.plot(np.array(data.loc[0]), label="原数据")
-        plt.plot(np.array(data.loc[1]), label="LSTM-多变量")
-        plt.plot(np.array(data.loc[2]), label="LSTM-单变量")
-        plt.plot(np.array(data.loc[3]), label="Transformer-单变量")
-        plt.plot(np.array(data.loc[4]), label="Transformer-多变量")
+        data = pd.read_excel('../Final_Image/datayuce/truth.xlsx')
+        plt.plot(np.array(data.loc[0]), label="原数据",marker='o')
+        # plt.plot(np.array(data.loc[2]), label="LSTM-多变量", marker='^')
+        plt.plot(np.array(data.loc[2]), label="LSTM-单变量", marker='o')
+        plt.plot(np.array(data.loc[1]), label="Transformer-单变量", marker='o')
+        plt.plot(np.array(data.loc[3]), label="Transformer-多变量", marker='o')
 
         plt.grid()
         plt.legend()
         plt.show()
+
+        data_yuan = np.array(data.loc[0])
+        data_t = np.array(data.loc[1])
+
+        mse = mean_squared_error(data_yuan[20:],data_t[20:])
+        mae = mean_absolute_error(data_yuan[20:],data_t[20:])
+        mape = mean_absolute_percentage_error(data_yuan[20:],data_t[20:])
+        print("MSE: %.3f" %mse)
+        print("MAE: %.3f" %mae)
+        print("MAPE: %.5f" %mape)
         break

@@ -13,7 +13,7 @@ import os
 import sys
 from sklearn.preprocessing import MinMaxScaler
 sys.path.append("D:\pyhtonProject\A5\任务4")
-import Data_manager
+import 任务4.Data_manager
 
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -57,7 +57,7 @@ def train(train_data, train_data_fe):
 
     for batch, i in enumerate(range(0, len(train_data) - 1 - 5, batch_size)):
         # 获取电力数据和相关的特征
-        data, targets = Data_manager.get_batch(train_data, i, batch_size)
+        data, targets = 任务4.Data_manager.get_batch(train_data, i, batch_size)
         # fe = get_batch_tezhen(train_data_fe, i, batch_size)
         # data = torch.cat((fe, data), dim=2)
 
@@ -100,7 +100,7 @@ def plot_and_loss(eval_model, data_source, data_feature, epoch):
     with torch.no_grad():
         for i in range(0, len(data_source) - 1 - 5):
             # 获取数据
-            data, target = Data_manager.get_batch(data_source, i, 1)
+            data, target = 任务4.Data_manager.get_batch(data_source, i, 1)
             # fe = get_batch_tezhen(data_feature, i, 1)
             # # 拼接数据
             # data = torch.cat((fe, data), dim=2)
@@ -124,11 +124,11 @@ def plot_and_loss(eval_model, data_source, data_feature, epoch):
     # pyplot.plot(test_result - truth, color="green")
     pyplot.grid(True, which='both')
     pyplot.axhline(y=0, color='k')
-    pyplot.savefig('../image2/australia_tezhen/transformer-epoch%d.png' % epoch)
+    # pyplot.savefig('../image2/australia_tezhen/transformer-epoch%d.png' % epoch)
     pyplot.close()
-    # if epoch == 10:
-    #     global total_num
-    #     total_num.append(scaler.inverse_transform(test_result[:50].reshape(-1, 1)).ravel().tolist())
+    if epoch == 100:
+        global total_num
+        total_num.append(任务4.Data_manager.scaler.inverse_transform(test_result[:100].reshape(-1, 1)).ravel().tolist())
     return total_loss / i
 
 
@@ -140,7 +140,7 @@ def evaluate(eval_model, data_source, data_feature):
     print(len(data_source))
     with torch.no_grad():
         for i in range(0, len(data_source) - 1 - 95, eval_batch_size):
-            data, targets = Data_manager.get_batch(data_source, i, eval_batch_size)
+            data, targets = 任务4.Data_manager.get_batch(data_source, i, eval_batch_size)
             # fe = get_batch_tezhen(data_feature, i, eval_batch_size)
             # data = torch.cat((fe, data), dim=2)
 
@@ -152,8 +152,7 @@ def evaluate(eval_model, data_source, data_feature):
     return total_loss / len(data_source)
 
 
-scaler = MinMaxScaler(feature_range=(-1, 1))
-train_data, val_data, train_data_fe, val_data_fe = Data_manager.get_data()
+train_data, val_data, train_data_fe, val_data_fe = 任务4.Data_manager.get_data()
 # 输入数据的维度，节点数，多少层，输出维度
 model = LSTM(1, 64, 2, 1).to(device)
 
@@ -193,10 +192,10 @@ if __name__ == "__main__":
                 train_loss.append(val_loss_train)
                 test_loss.append(val_loss_test)
 
-        # df_data = pd.DataFrame(total_num)
-        # df_data.to_excel('temp1.xlsx')
+        df_data = pd.DataFrame(total_num)
+        df_data.to_excel('../Final_Image/datayuce/LSTM.xlsx')
         # 保存模型
-        torch.save(model.state_dict(), '../save/LSTM_model.pt')
+        # torch.save(model.state_dict(), '../save/LSTM_model.pt')
         pyplot.plot(train_loss, color="red")
         # 实际结果
         pyplot.plot(test_loss, color="blue")
