@@ -227,21 +227,21 @@ def plot_and_loss(eval_model, data_source, data_feature, epoch):
             truth = torch.cat((truth, target[-1].view(-1).cpu()), 0)
 
     # test_result = test_result.cpu().numpy()
-    len(test_result)
-    # 预测结果
-    pyplot.plot(scaler.inverse_transform(test_result[:50].reshape(-1, 1)), color="red", marker='^')
-    # 实际结果
-    pyplot.plot(scaler.inverse_transform(truth[:50].reshape(-1, 1)), color="blue", marker='^')
-    # 差值
-    # pyplot.plot(test_result - truth, color="green")
-    pyplot.grid(True, which='both')
-    pyplot.axhline(y=0, color='k')
-    pyplot.savefig('../Final_Image/Transformer_duo/transformer-epoch%d.png' % epoch)
-    pyplot.close()
-    if epoch == 100:
-        print(len(test_result))
-        global total_num
-        total_num.append(scaler.inverse_transform(test_result[:100].reshape(-1, 1)).ravel().tolist())
+    # len(test_result)
+    # # 预测结果
+    # pyplot.plot(scaler.inverse_transform(test_result[:50].reshape(-1, 1)), color="red", marker='^')
+    # # 实际结果
+    # pyplot.plot(scaler.inverse_transform(truth[:50].reshape(-1, 1)), color="blue", marker='^')
+    # # 差值
+    # # pyplot.plot(test_result - truth, color="green")
+    # pyplot.grid(True, which='both')
+    # pyplot.axhline(y=0, color='k')
+    # pyplot.savefig('../Final_Image/Transformer_duo/transformer-epoch%d.png' % epoch)
+    # pyplot.close()
+    # if epoch == 100:
+    #     print(len(test_result))
+    #     global total_num
+    #     total_num.append(scaler.inverse_transform(test_result[:100].reshape(-1, 1)).ravel().tolist())
     return total_loss / i
 
 
@@ -345,8 +345,8 @@ if __name__ == "__main__":
         # pyplot.axhline(y=0, color='k')
         pyplot.show()
         # 写入训练的结果
-        df_data = pd.DataFrame(total_num)
-        df_data.to_excel('../Final_Image/datayuce/transformer2.xlsx')
+        # df_data = pd.DataFrame(total_num)
+        # df_data.to_excel('../Final_Image/datayuce/transformer2.xlsx')
         # 保存模型
         # torch.save(model.state_dict(), '../save/Temp/TRANSFORMER_model_2.pt')
         break

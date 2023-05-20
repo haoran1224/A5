@@ -11,12 +11,12 @@ import trying
 flag = st.session_state['authentication_status']
 
 if not flag:
-    st.warning("Please login!")
+    st.warning("请登录!")
 else:
     ssss = 0
-    st.sidebar.markdown("# Customer Forecast 2 🔲️")
+    st.sidebar.markdown("# 高价值客户预测 🔲️")
 
-    st.title("Customer Forecast 2 🔲️")
+    st.title("高价值客户预测 🔲️")
     st.markdown("""这是电力客户价值预测模块，在此部分我们采用了前面两部分的模型，对您输入的数据进行了短期的预测
     并帮您筛选出了在下面的一段时间里，电量消耗最大，即最具有价值的客户群体id""")
 
@@ -30,7 +30,7 @@ else:
 
     # 传入客户传入的数据
     data1 = st.file_uploader(
-        "Upload a GeoJSON file to use as an ROI. Customize timelapse parameters and then click the Submit button "
+        "请在下方点击输入文件"
         "😇👇",
     )
 
@@ -57,6 +57,6 @@ else:
         st.download_button(
             label="Download all data as CSV",
             data=csv,
-            file_name='large_df.csv',
+            file_name='高价值客户预测结果.csv',
             mime='text/csv',
         )

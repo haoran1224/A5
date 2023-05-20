@@ -70,8 +70,9 @@ def get_max(data, number):
         column_name = np.datetime64(data.columns[-i], 'D')
         print(column_name)
         # 排序
-        df = data_need.sort_values()
+        df = data_need.sort_values(ascending=False)
         df = df.reset_index()
+        df = df.iloc[0:20, :]
         df.columns = [f'{column_name}/id', f'consumption{6 - i}/KW']
         # 拼接数据
         dataframe = pd.concat([dataframe, df], axis=1)
@@ -79,16 +80,18 @@ def get_max(data, number):
     print(dataframe)
     return dataframe
 
+
 # 用于外部接口
 def get_MAX_customer(data, number):
-    # 对数据进行处理
+    # 对数据进行处理，生成客户，
     data = data_arrange(data)
-    # 对传入的客户数据进行预测
-    data = data_forecast(data, number)
-    # 筛选出预测时间段下的最大用电量用户
+    # 对传入的客户数据进行预测,此时传入的是数据的长度
+    data = data_forecast(data, data.shape[0])
+    # 筛选出预测时间段下的最大用电量用户，此时传入的应是预测步长
     final_data = get_max(data, 5)
 
     return final_data, data
+
 
 # 用于后部测试
 if __name__ == "__main__":

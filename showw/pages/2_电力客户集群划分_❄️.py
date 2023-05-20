@@ -87,12 +87,12 @@ def plot_AllThree():
 flag = st.session_state['authentication_status']
 
 if not flag:
-    st.warning("Please login!")
+    st.warning("请登录!")
 else:
     ssss = 0
-    st.sidebar.markdown("# Electricity classification 2 ❄️")
+    st.sidebar.markdown("# 电力客户集群划分 ❄️")
 
-    st.title("Electricity classification 2 ❄️")
+    st.title("电力客户集群划分 ❄️")
     st.markdown("""这是电力分类模块，在此部分我们采用了K-shape，LTTB降维的方法,通过对电力曲线形状的分类来进行
     判断您所输入的数据中各类用户所占的百分比，以及分析""")
 
@@ -108,7 +108,7 @@ else:
             st.image(image)
         # 传入客户传入的数据
         data = st.file_uploader(
-            "Upload a GeoJSON file to use as an ROI. Customize timelapse parameters and then click the Submit button "
+            "请在下方点击输入文件"
             "😇👇",
         )
 
@@ -138,7 +138,7 @@ else:
             st.download_button(
                 label="Download data as CSV",
                 data=csv,
-                file_name='large_df.csv',
+                file_name='电力客户集群划分结果.csv',
                 mime='text/csv',
             )
             st.table(new_dataframe)
